@@ -14,38 +14,27 @@ var app = new Vue({
         token: null,
     },
     mounted() {
-     
         this.token = localStorage.getItem("token");
         if(this.token == null) {
             window.location.href = "/";
         }
-   
-        axios.get(apiUrl+'/gamePlayers/'+gpId, {
+        axios.get(apiUrl+'/gamePlayers/'+gpId,{
             headers: {
                 Authorization: "Bearer " + this.token
               }
         })
             .then(response => {
-            
                 this.gameView = response.data;
                 this.gameState = response.data.state;
-           
                 var static = this.gameView.ships && this.gameView.ships.length > 0;
-        
                 getPlayers(this.gameView, gpId);
-          
                 initializeGrid(this.gameView,static);
-        
                 placeShips(this.gameView.ships);
-       
                 if (!static)
                     addEventsShips();
                 else
                     addEventsSalvo();
-                
-          
                 this.getGameData();
-                
             })
             .catch(error => {
                 swal("Algo malio sal!", "error al obtener los datos del juego", "error");
@@ -53,32 +42,19 @@ var app = new Vue({
     },
     methods: {
         getGameData: function () {
-            
-
             if(this.gameState != 'PLACE_SHIPS' && this.gameState != 'WAIT_PLAYER'){
-       
                 placeSalvos(this.gameView.salvos, this.player.id, this.gameView.ships, this.gameView.aguasOpponent);
-     
             }
-  
             placeSinksShips(this.gameView.sunks, this.gameView.sunksOpponent);
-
             placeHits(this.gameView.hits);
-    
             this.gameState = getGameState(this.gameView.gameState);
-   
             if (this.gameView.gameState == 'WAIT' || this.gameView.gameState == 'WAIT_PLAYER' || this.gameView.gameState == 'WAIT_PLAYER_SHIPS') {
-           
                 if (this.interval == null)
                     this.interval = setInterval(this.refresh, 12000);
-                 
             }
             else {
-  
                 clearInterval(this.interval);
-     
                 this.interval = null;
-   
             }
         },
         refresh: function () {
@@ -101,20 +77,16 @@ var app = new Vue({
             setTimeout(function () {
                 window.location.replace('/index.html');
             }, 5000);
-            //swal("Algo salio mal!", "Ocurrió un error al cerrar sesión","error");
         },
         placeShips: function () {
             var shipTypeAndCells = [];
-
             for (var i = 1; i <= 5; i++) {
                 var shipLoc = new Object();
                 var cellsArray = [];
-
                 var h = parseInt($("#grid .grid-stack-item:nth-child(" + i + ")").attr("data-gs-height"));
                 var w = parseInt($("#grid .grid-stack-item:nth-child(" + i + ")").attr("data-gs-width"));
                 var posX = parseInt($("#grid .grid-stack-item:nth-child(" + i + ")").attr("data-gs-x"));
                 var posY = parseInt($("#grid .grid-stack-item:nth-child(" + i + ")").attr("data-gs-y")) + 64;
-
                 if (w > h) {
                     for (var e = 1; e <= w; e++) {
                         var HHH = String.fromCharCode(posY + 1) + (posX + e);
@@ -155,7 +127,7 @@ var app = new Vue({
                 var cellsArray = [];
                 $(".salvo.shoot").each(function () {
                     cellsArray.push({ id: 0, location: $(this).attr("id") });
-                    $(this).removeClass('shoot'); //esta linea de codigo arregla el bug de los tiros infinitos
+                    $(this).removeClass('shoot');
                     $(this).addClass('shooting');
                 })
                 var salvo = new Object();
@@ -187,7 +159,6 @@ var app = new Vue({
         }
     }
 })
-
 function getPlayers(gameView,gpId) {
     gameView.gamePlayers.forEach(gp => {
         if (gp.id == gpId)
@@ -196,9 +167,7 @@ function getPlayers(gameView,gpId) {
             app.opponent = gp.player;
     });
 }
-
 function initializeGrid(gameview, static) {
-   
     var options = {
         //grilla de 10 x 10
         width: 10,
@@ -217,16 +186,11 @@ function initializeGrid(gameview, static) {
         //false permite mover, true impide
         staticGrid: static,
         //activa animaciones (cuando se suelta el elemento se ve más suave la caida)
-        
         animate: true
     }
-    
     //se inicializa el grid con las opciones
-    
     $('.grid-stack').gridstack(options);
-   
 }
-
 function placeShips(ships) {
     grid = $('#grid').data('gridstack');
     ships = JSON.parse(JSON.stringify(ships));
@@ -240,7 +204,6 @@ function placeShips(ships) {
                 else
                     return 0;
             });
-
             var searchChar = ship.locations[0].location.slice(0, 1);
             var secondChar = ship.locations[1].location.slice(0, 1);
             if (searchChar === secondChar) {
@@ -260,7 +223,6 @@ function placeShips(ships) {
                 ship.locations[i].location = ship.locations[i].location.replace(/I/g, '8');
                 ship.locations[i].location = ship.locations[i].location.replace(/J/g, '9');
             }
-
             var yInGrid = parseInt(ship.locations[0].location.slice(0, 1));
             var xInGrid = parseInt(ship.locations[0].location.slice(1, 3)) - 1;
 
@@ -283,40 +245,23 @@ function placeShips(ships) {
 }
 
 function placeSalvos(salvos, playerId, ships, aguas) {
-    
     $('.hitSelf').remove();
-    
     $(".salvo.shooting").each(function () {
-       
         $(this).removeClass('shooting');
-       
     })
-  
     salvos = JSON.parse(JSON.stringify(salvos));
-  
     const shitPositions = [];
- 
     ships.forEach(ship => ship.locations.forEach(location => { shitPositions.push(location.location) }))
-
-  
     salvos.forEach(salvo => {
- 
         if (salvo.player.id == playerId) {
-
-        
             salvo.locations.forEach(location => {
-     
                 if (!$('#' + location.location).hasClass("shooted")) {
                     $('#' + location.location).addClass("shooted");
                     $('#' + location.location).text(salvo.turn);
-           
-              
                 }
-                
             })
         }
         else {
-     
             salvo.locations.forEach(location => {
                 if (shitPositions.indexOf(location.location) != -1) {
                     location.location = location.location.replace(/A/g, '0');
@@ -329,7 +274,6 @@ function placeSalvos(salvos, playerId, ships, aguas) {
                     location.location = location.location.replace(/H/g, '7');
                     location.location = location.location.replace(/I/g, '8');
                     location.location = location.location.replace(/J/g, '9');
-
                     var yInGrid = (parseInt(location.location.slice(0, 1)) * 40) + 42;
                     var xInGrid = ((parseInt(location.location.slice(1, 3)) - 1) * 40) + 42;
                     $('.grid-ships').append('<div class="hitSelf" style="top:' + yInGrid + 'px; left:' + xInGrid + 'px;" ></div>');
@@ -337,11 +281,8 @@ function placeSalvos(salvos, playerId, ships, aguas) {
             })
         }
     })
-
-
     if(aguas!=null)
     aguas.forEach(agua => {
-
         if (aguas.indexOf(agua) != -1) {
             agua = agua.replace(/A/g, '0');
             agua = agua.replace(/B/g, '1');
@@ -353,14 +294,11 @@ function placeSalvos(salvos, playerId, ships, aguas) {
             agua = agua.replace(/H/g, '7');
             agua = agua.replace(/I/g, '8');
             agua = agua.replace(/J/g, '9');
-
             var yInGrid2 = (parseInt(agua.slice(0, 1)) * 40) + 42;
             var xInGrid2 = ((parseInt(agua.slice(1, 3)) - 1) * 40) + 42;
             $('.grid-ships').append('<div class="agua" style="top:' + yInGrid2 + 'px; left:' + xInGrid2 + 'px;" ></div>');
         }
     })
-    
-
 }
 
 function addEventsShips() {
@@ -369,7 +307,6 @@ function addEventsShips() {
         var w = parseInt($(this).attr("data-gs-width"));
         var posX = parseInt($(this).attr("data-gs-x"));
         var posY = parseInt($(this).attr("data-gs-y"));
-
         if (w > h) {
             if (grid.isAreaEmpty(posX, posY + 1, h, w - 1) && posY + w <= 10) {
                 grid.update($(this), posX, posY, h, w);
@@ -418,19 +355,16 @@ function placeHits(playerHits) {
 }
 
 function placeSinksShips(playerSunks, opponentSunks) {
-    
     if (playerSunks != null)
         playerSunks.forEach(function (sunk) {
             $("#" + sunk + "Icon").attr("src", "img/" + sunk.toLowerCase() +"sunk.png");
         })
     if (opponentSunks != null)
         opponentSunks.forEach(function (sunk) {
-            $("#Opponent" + sunk + "Icon").attr("src", "img/" + sunk.toLowerCase() + "sunk.png");
-        })
+        $("#Opponent" + sunk + "Icon").attr("src", "img/" + sunk.toLowerCase() + "sunk.png");
+    })
 }
-
 function getGameState(gameState) {
-    
     var state = "";
     switch (gameState) {
         case 'ENTER_SALVO':
@@ -476,10 +410,12 @@ function getGameState(gameState) {
     }
     return state;
 }
-
 function getAudio(audio, vol) {
     const hitSound = new Audio(audio);
     hitSound.volume = vol;
     hitSound.play();
     hitSound.loop = false;
 };
+setTimeout(function(){
+    $('.loader_bg').fadeToggle();
+}, 1500);

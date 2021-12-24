@@ -144,15 +144,11 @@ var app = new Vue({
                         
                         sesion = 1;
                         swal("Bienvenido", "Que bueno volver a verte " + this.name);
-                        //this.modal.tittle = "Información";
-                        //this.modal.message = "Bienvenido " + this.name;
-                        /*this.showModal(true);*/
                         this.showModal2(false);
                     }
                 })
                 .catch(error => {
                     swal("Algo salió mal!", "erro al obtener los datos", "error");
-                    /*alert("erro al obtener los datos");*/
                 });
         },
         getGamesPage: function(page){
@@ -185,7 +181,6 @@ var app = new Vue({
             })
             .catch(error => {
                 swal("Algo salió mal!", "erro al obtener los datos", "error");
-                /*alert("erro al obtener los datos");*/
             });
         },
         getMyGames: function(page){
@@ -195,7 +190,6 @@ var app = new Vue({
             if(this.token == null)
             {
                 header = {}
-                
             }
             else {
                 header = {
@@ -212,13 +206,11 @@ var app = new Vue({
             })
             .catch(error => {
                 swal("Algo salió mal!", "erro al obtener los datos", "error");
-                /*alert("erro al obtener los datos");*/
             });
         },
         playerInfo: function(){
             window.location.href = '/player.html?email=' +this.player;
         },
-
         showModal: function (show) {
             if (show)
                 $("#infoModal").modal('show');
@@ -230,8 +222,7 @@ var app = new Vue({
             if (show)
                 $("#registerModal").modal('show');
             else
-                $("#registerModal").modal('hide');
-                
+                $("#registerModal").modal('hide');      
         },
         showLogin: function (show) {
             if (show) {
@@ -256,7 +247,6 @@ var app = new Vue({
             this.showModal(true);
         },
         login: function (event) {
-            //this.getMusicaFondo();
             if (this.email == "") {
                 this.email = this.emailr;
                 this.password = this.passwordr;
@@ -281,15 +271,9 @@ var app = new Vue({
                     console.log("error, código de estatus: " + error.response.status);
                     if (error.response.status == 401) {
                     	  swal("Falló el registro", error.response.data, "warning");
-                        //this.modal.tittle = "Fallo en la autenticacion";
-                        //this.modal.message = "Email o contraseña inválido"
-                        //this.showModal(true);
                     }
                     else {
                         swal("Fallo la autenticación", "Ha ocurrido un error", "error");
-                        //this.modal.tittle = "Fallo en la autenticacion";
-                        //this.modal.message = "Ha ocurrido un error";
-                        //this.showModal(true);
                     }
                 });
         },
@@ -317,9 +301,6 @@ var app = new Vue({
                     console.log("error, código de estatus: " + error.response.status);
                     if (error.response.status == 403) {
                         swal("Falló el registro", error.response.data, "warning");
-                        //this.modal.tittle = "Falló el registro";
-                        //this.modal.message = error.response.data
-                        //this.showModal(true);
                     }
                     else {
                         this.modal.tittle = "Fallo en la autenticacion";
@@ -399,7 +380,6 @@ var app = new Vue({
                         this.modal.message = "Ha ocurrido un error. No se pudo confirmar el mail, inténtelo de nuevo mas tarde.";
                         this.showModal(true);
                     }
-
                 });
         },
         getScores: function () {
@@ -408,65 +388,14 @@ var app = new Vue({
             .then(response =>{
                 this.scores = response.data;
             })
-            /*
-            scores.forEach(score => {
-                game.gamePlayers.forEach(gp => {
-                    var index = scores.findIndex(sc => sc.name == gp.player.name)
-                    if (index < 0) {
-                        var score = { name: gp.player.name, win: 0, tie: 0, lost: 0, total: 0 }
-                        switch (gp.point) {
-                            case 1:
-                                score.win++;
-                                break;
-                            case 0:
-                                score.lost++;
-                                break;
-                            case 0.5:
-                                score.tie++;
-                                break;
-                        }
-                        score.total += gp.point;
-                        scores.push(score);
-                    }
-                    else {
-                        switch (gp.point) {
-                            case 1:
-                                scores[index].win++;
-                                break;
-                            case 0:
-                                scores[index].lost++;
-                                break;
-                            case 0.5:
-                                scores[index].tie++;
-                                break;
-                        }
-                        scores[index].total += gp.point;
-                    }
-                })
-            })
-            var scoresOrdenados = scores.sort((a, b) => {
-                return b.total - a.total;
-            });
-            app.scores = scoresOrdenados;*/
         }
     },
     filters: {
         dateFormat(date) {
             return moment(date).format('LLL');
         }
-    }
-    
-    
+    } 
 })
-/*
-$( document ).ready(function() {
-    var music = new Audio('audio/musica-fondo.mp3');
-    music.volume = 0.5;
-    music.play();
-    music.loop = true;
-    console.log( "ready!" ); 
-});*/
-
 function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -478,7 +407,6 @@ function getQueryVariable(variable) {
     }
     return null;
 }
-
 setTimeout(function(){
     $('.loader_bg').fadeToggle();
 }, 1500);

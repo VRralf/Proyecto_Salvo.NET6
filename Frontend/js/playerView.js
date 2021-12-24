@@ -251,3 +251,6 @@ var app = new Vue({
     }
   }
 });
+setTimeout(function(){
+  $('.loader_bg').fadeToggle();
+}, 1500);
